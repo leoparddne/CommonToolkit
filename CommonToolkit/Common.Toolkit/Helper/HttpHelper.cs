@@ -10,29 +10,35 @@ namespace Common.Toolkit.Helper
     public static class HttpHelper
     {
         #region Get
-        public static async Task<TResult> GetAsync<TResult>(string url, Dictionary<string, object> parameter = null, Dictionary<string, string> Headers = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        public static async Task<TResult?> GetAsync<TResult>(string url, Dictionary<string, object>? parameter = null,
+            Dictionary<string, string>? Headers = null, int timeout = 10000,
+            bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
             var result = await GetAsync(url, parameter, Headers, timeout, statusErrorHandle, readBodyWhenErr);
             return JsonConvert.DeserializeObject<TResult>(result ?? string.Empty);
         }
-        public static async Task<string> GetAsync(string url, Dictionary<string, object> parameter = null, Dictionary<string, string> Headers = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        public static async Task<string?> GetAsync(string url, Dictionary<string, object>? parameter = null,
+            Dictionary<string, string>? Headers = null, int timeout = 10000,
+            bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
-            RestClient client;
-            RestRequest request;
-            GetInit(url, parameter, Headers, timeout, out client, out request);
+            GetInit(url, parameter, Headers, timeout, out RestClient client, out RestRequest request);
 
             return await GetResult(client, request, statusErrorHandle, readBodyWhenErr);
         }
 
-        private static void GetInit(string url, Dictionary<string, object> parameter, Dictionary<string, string> Headers, int timeout, out RestClient client, out RestRequest request)
+        private static void GetInit(string url, Dictionary<string, object>? parameter,
+            Dictionary<string, string>? Headers, int timeout,
+            out RestClient client, out RestRequest request)
         {
             client = new RestClient(new RestClientOptions
             {
                 Timeout = timeout
             });
-            request = new RestRequest(url, Method.Get);
-            //request.AddHeader("Content-Type", "application/json");
-            request.Timeout = timeout;
+            request = new RestRequest(url, Method.Get)
+            {
+                //request.AddHeader("Content-Type", "application/json");
+                Timeout = timeout
+            };
 
             GenerateHeader(request, Headers);
 
@@ -48,12 +54,12 @@ namespace Common.Toolkit.Helper
         #endregion
 
         #region Post
-        public static async Task<TResult> PostAsync<TResult>(string url, object obj = null, Dictionary<string, string> Headers = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        public static async Task<TResult?> PostAsync<TResult>(string url, object? obj = null, Dictionary<string, string>? Headers = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
             var result = await PostAsync(url, obj, Headers, timeout, statusErrorHandle, readBodyWhenErr);
             return JsonConvert.DeserializeObject<TResult>(result ?? string.Empty);
         }
-        public static async Task<string> PostAsync(string url, object obj = null, Dictionary<string, string> Headers = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        public static async Task<string?> PostAsync(string url, object? obj = null, Dictionary<string, string>? Headers = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
             RestClient client;
             RestRequest request;
@@ -62,22 +68,23 @@ namespace Common.Toolkit.Helper
             return await GetResult(client, request, statusErrorHandle, readBodyWhenErr);
         }
 
-        public static async Task<TResult> PostFormDataAsync<TResult>(string url, Dictionary<string, string> Headers = null, Dictionary<string, object> parameters = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        public static async Task<TResult?> PostFormDataAsync<TResult>(string url, Dictionary<string, string>? Headers = null, Dictionary<string, object>? parameters = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
             var result = await PostFormDataAsync(url, Headers, parameters, timeout, statusErrorHandle, readBodyWhenErr);
             return JsonConvert.DeserializeObject<TResult>(result ?? string.Empty);
         }
 
-        public static async Task<string> PostFormDataAsync(string url, Dictionary<string, string> Headers = null, Dictionary<string, object> parameters = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        public static async Task<string?> PostFormDataAsync(string url, Dictionary<string, string>? Headers = null, Dictionary<string, object>? parameters = null, int timeout = 10000, bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
-            RestClient client;
-            RestRequest request;
-            PostInit(url, null, Headers, timeout, out client, out request);
+            PostInit(url, null, Headers, timeout, out RestClient client, out RestRequest request);
 
-            foreach (var item in parameters)
+            if (parameters != null)
             {
-                request.AddParameter(item.Key, item.Value, ParameterType.GetOrPost);//, ParameterType.RequestBody);
-                //request.AddParameter(item.Key, item.Value);
+                foreach (var item in parameters)
+                {
+                    request.AddParameter(item.Key, item.Value, ParameterType.GetOrPost);//, ParameterType.RequestBody);
+                                                                                        //request.AddParameter(item.Key, item.Value);
+                }
             }
 
             return await GetResult(client, request, statusErrorHandle, readBodyWhenErr);
@@ -92,7 +99,7 @@ namespace Common.Toolkit.Helper
         /// <param name="readBodyWhenErr">http code 非200时是否将body中的内容作为正常数据返回, 如果为true则需要业务中自行处理异常逻辑</param>
         /// <returns></returns>
         /// <exception cref="System.Exception"></exception>
-        private static async Task<string> GetResult(RestClient client, RestRequest request, bool statusErrorHandle = true, bool readBodyWhenErr = false)
+        private static async Task<string?> GetResult(RestClient client, RestRequest request, bool statusErrorHandle = true, bool readBodyWhenErr = false)
         {
             RestResponse response = await client.ExecuteAsync(request);
 
@@ -124,7 +131,7 @@ namespace Common.Toolkit.Helper
             throw response.ErrorException;
         }
 
-        private static void PostInit(string url, object obj, Dictionary<string, string> Headers, int timeout, out RestClient client, out RestRequest request)
+        private static void PostInit(string url, object? obj, Dictionary<string, string>? Headers, int timeout, out RestClient client, out RestRequest request)
         {
             client = new RestClient(new RestClientOptions
             {
@@ -158,7 +165,7 @@ namespace Common.Toolkit.Helper
         /// <summary>
         /// 将header添加到请求中
         /// </summary>
-        private static void GenerateHeader(RestRequest request, Dictionary<string, string> Headers)
+        private static void GenerateHeader(RestRequest request, Dictionary<string, string>? Headers)
         {
             if (Headers != null && Headers.Count > 0)
             {

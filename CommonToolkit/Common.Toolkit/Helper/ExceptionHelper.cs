@@ -1,9 +1,39 @@
-﻿using Common.Toolkit.ExceptionEx;
-
-namespace Common.Toolkit.Helper
+﻿namespace Common.Toolkit.Helper
 {
     public static class ExceptionHelper
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="errMsg"></param>
+        /// <param name="httpCode"></param>
+        public static void CheckNull(object obj, string errMsg)
+        {
+            Check(obj == null, errMsg);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="enumValue"></param>
+        /// <param name="httpCode"></param>
+        public static void CheckNull(object obj, Enum enumValue)
+        {
+            Check(obj == null, enumValue);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="exceptio"></param>
+        /// <param name="httpCode"></param>
+        public static void CheckNull(object obj, Exception exceptio)
+        {
+            Check(obj == null, exceptio);
+        }
 
         /// <summary>
         /// check为true时候自动触发exception
@@ -11,12 +41,13 @@ namespace Common.Toolkit.Helper
         /// <param name="check"></param>
         /// <param name="errMsg"></param>
         /// <param name="httpCode"></param>
-        public static void CheckException(bool check, string errMsg, int? httpCode = null)
+        public static void Check(bool check, string errMsg)
         {
-            if (check)
+            if (!check)
             {
-                Exec(new Exception(errMsg), httpCode);
+                return;
             }
+            Exec(new Exception(errMsg));
         }
 
         /// <summary>
@@ -25,9 +56,9 @@ namespace Common.Toolkit.Helper
         /// <param name="check"></param>
         /// <param name="enumValue"></param>
         /// <param name="httpCode"></param>
-        public static void CheckException(bool check, Enum enumValue, int? httpCode = null)
+        public static void Check(bool check, Enum enumValue)
         {
-            CheckException(check, enumValue.GetDesc(), httpCode);
+            Check(check, enumValue.GetDesc());
         }
 
         /// <summary>
@@ -36,22 +67,19 @@ namespace Common.Toolkit.Helper
         /// <param name="check"></param>
         /// <param name="exception"></param>
         /// <param name="httpCode"></param>
-        public static void CheckException(bool check, Exception exception, int? httpCode = null)
+        public static void Check(bool check, Exception exception)
         {
-            if (check)
+            if (!check)
             {
-                Exec(exception, httpCode);
+                return;
             }
+            Exec(exception);
         }
 
-        public static void Exec(Exception exception, int? httpCode = null)
-        {
-            if (httpCode == null)
-            {
-                throw exception;
-            }
 
-            throw new HttpCodeException(httpCode!.Value, exception.Message);
+        public static void Exec(Exception exception)
+        {
+            throw exception;
         }
     }
 }

@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Common.Toolkit.Helper
 {
     public class ImageHelper
     {
         /// <summary>  
-        /// 调整图片大小  
+        /// 调整图片大小  - 仅支持windows平台
         /// </summary>  
         /// <param name="strOldPic">源图文件名(包括路径)</param>  
         /// <param name="strNewPic">缩小后保存为文件名(包括路径)</param>  
@@ -20,33 +15,38 @@ namespace Common.Toolkit.Helper
         /// <param name="intHeight">高度</param>  
         public static void ResizeImg(string strOldPic, string strNewPic, int intWidth, int intHeight)
         {
-
-            System.Drawing.Bitmap objPic, objNewPic;
+            if (!OperatingSystem.IsWindows())
+            {
+                return;
+            }
+            Bitmap? objPic = null, objNewPic = null;
             try
             {
-                objPic = new System.Drawing.Bitmap(strOldPic);
-                //System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(objPic);
-
-                objNewPic = new System.Drawing.Bitmap(objPic, intWidth, intHeight);
+                objPic = new Bitmap(strOldPic);
+                objNewPic = new Bitmap(objPic, intWidth, intHeight);
 
                 objNewPic.SetResolution(20, 20);
-
                 objNewPic.Save(strNewPic);
             }
-            catch (Exception exp)
+            catch (Exception)
             {
                 //throw exp;
             }
             finally
             {
-                objPic = null;
-                objNewPic = null;
+                objPic?.Dispose();
+                objNewPic?.Dispose();
             }
         }
 
 
-        private static ImageCodecInfo GetEncoderInfo(String mimeType)
+        private static ImageCodecInfo? GetEncoderInfo(String mimeType)
         {
+            if (!OperatingSystem.IsWindows())
+            {
+                return null;
+            }
+
             int j;
 
             ImageCodecInfo[] encoders;
@@ -72,15 +72,25 @@ namespace Common.Toolkit.Helper
         /// <param name="level">0最低 100最高</param>
         public static void Compress(string oldPic, string newPic, long level)
         {
-            ImageCodecInfo myImageCodecInfo;
-            System.Drawing.Imaging.Encoder myEncoder;
+            if (!OperatingSystem.IsWindows())
+            {
+                return;
+            }
+
+            ImageCodecInfo? myImageCodecInfo;
+            Encoder myEncoder;
             EncoderParameter myEncoderParameter;
             EncoderParameters myEncoderParameters;
 
             // Get an ImageCodecInfo object that represents the JPEG codec.
             myImageCodecInfo = GetEncoderInfo("image/jpeg");
 
-            myEncoder = System.Drawing.Imaging.Encoder.Quality;
+            if (myImageCodecInfo == null)
+            {
+                return;
+            }
+
+            myEncoder = Encoder.Quality;
 
             myEncoderParameters = new EncoderParameters(1);
 
@@ -88,9 +98,9 @@ namespace Common.Toolkit.Helper
             myEncoderParameter = new EncoderParameter(myEncoder, level);
             myEncoderParameters.Param[0] = myEncoderParameter;
 
-            using (Bitmap bitmap = (Bitmap)System.Drawing.Image.FromFile(oldPic))
+            using (var bitmap = (Bitmap)Image.FromFile(oldPic))
             {
-                using (Stream newBitmap = File.OpenWrite(newPic))
+                using (var newBitmap = File.OpenWrite(newPic))
                 {
                     bitmap.Save(newBitmap, myImageCodecInfo, myEncoderParameters);
                 }
@@ -105,14 +115,21 @@ namespace Common.Toolkit.Helper
         /// <param name="newW"></param>
         /// <param name="newH"></param>
         /// <param name="level"></param>
-        public static void ResizeImage(string oldPic, string newPic, int newW, int newH, InterpolationMode level = InterpolationMode.HighQualityBicubic)
+        public static void ResizeImage(string oldPic, string newPic, int newW, int newH, int qualityLevel = 7)
         {
-            using (Bitmap bitmap = (Bitmap)System.Drawing.Image.FromFile(oldPic))
+            if (!OperatingSystem.IsWindows())
             {
-                Graphics g = Graphics.FromImage(bitmap);
+                return;
+            }
+
+            InterpolationMode level = (InterpolationMode)qualityLevel;
+
+            using (var bitmap = (Bitmap)Image.FromFile(oldPic))
+            {
+                var g = Graphics.FromImage(bitmap);
                 // 插值算法的质量
                 g.InterpolationMode = level;
-                using (Bitmap newBitmap = new Bitmap(bitmap, newW, newH))
+                using (var newBitmap = new Bitmap(bitmap, newW, newH))
                 {
                     g.DrawImage(newBitmap, new Rectangle(0, 0, newW, newH), new Rectangle(0, 0, bitmap.Width, bitmap.Height), GraphicsUnit.Pixel);
                     newBitmap.Save(newPic);

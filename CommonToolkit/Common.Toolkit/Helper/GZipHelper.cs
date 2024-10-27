@@ -15,8 +15,8 @@ namespace Common.Toolkit.Helper
         {
             try
             {
-                MemoryStream ms = new MemoryStream();
-                GZipStream zip = new GZipStream(ms, CompressionMode.Compress, true);
+                var ms = new MemoryStream();
+                var zip = new GZipStream(ms, CompressionMode.Compress, true);
                 zip.Write(data, 0, data.Length);
                 zip.Close();
                 byte[] buffer = new byte[ms.Length];
@@ -41,9 +41,9 @@ namespace Common.Toolkit.Helper
         {
             try
             {
-                MemoryStream ms = new MemoryStream(data);
-                GZipStream zip = new GZipStream(ms, CompressionMode.Decompress, true);
-                MemoryStream msreader = new MemoryStream();
+                var ms = new MemoryStream(data);
+                var zip = new GZipStream(ms, CompressionMode.Decompress, true);
+                var msreader = new MemoryStream();
                 byte[] buffer = new byte[0x1000];
                 while (true)
                 {
@@ -69,21 +69,17 @@ namespace Common.Toolkit.Helper
 
         public static string Compress(string str)
         {
-            string compressString = "";
             byte[] compressBeforeByte = Encoding.GetEncoding("UTF-8").GetBytes(str);
             byte[] compressAfterByte = Compress(compressBeforeByte);
-            //compressString = Encoding.GetEncoding("UTF-8").GetString(compressAfterByte);  
-            compressString = Convert.ToBase64String(compressAfterByte);
+            string compressString = Convert.ToBase64String(compressAfterByte);
             return compressString;
         }
 
         public static string Decompress(string str)
         {
-            string compressString = "";
-            //byte[] compressBeforeByte = Encoding.GetEncoding("UTF-8").GetBytes(str);  
             byte[] compressBeforeByte = Convert.FromBase64String(str);
             byte[] compressAfterByte = Decompress(compressBeforeByte);
-            compressString = Encoding.GetEncoding("UTF-8").GetString(compressAfterByte);
+            string compressString = Encoding.GetEncoding("UTF-8").GetString(compressAfterByte);
             return compressString;
         }
     }

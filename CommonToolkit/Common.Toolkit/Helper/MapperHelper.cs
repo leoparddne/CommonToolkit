@@ -14,7 +14,7 @@ namespace Common.Toolkit.Helper
         /// <param name="outObj"></param>
         /// <param name="ignorDesc"></param>
         /// <returns></returns>
-        public static TOut AutoMap<TIn, TOut>(TIn obj, TOut outObj, bool ignorDesc = true) where TOut : new()
+        public static TOut? AutoMap<TIn, TOut>(TIn obj, TOut outObj, bool ignorDesc = true) where TOut : new()
         {
             return AutoMap(obj, ignorDesc, outObj);
         }
@@ -27,39 +27,60 @@ namespace Common.Toolkit.Helper
         /// <param name="obj"></param>
         /// <param name="ignorDesc">忽略description描述信息</param>
         /// <returns></returns>
-        public static TOut AutoMap<TIn, TOut>(TIn obj, bool ignorDesc = true) where TOut : new()
+        public static TOut? AutoMap<TIn, TOut>(TIn obj, bool ignorDesc = true) where TOut : new()
         {
-            TOut result = new TOut();
+            var result = new TOut();
             return AutoMap(obj, ignorDesc, result);
         }
 
-        private static TOut AutoMap<TIn, TOut>(TIn obj, bool ignorDesc, TOut result) where TOut : new()
+        private static TOut? AutoMap<TIn, TOut>(TIn obj, bool ignorDesc, TOut result) where TOut : new()
         {
-            System.Reflection.PropertyInfo[] properties = obj.GetType().GetProperties();
+            PropertyInfo[] properties = typeof(TIn).GetProperties();
+            if (properties == null)
+            {
+                return default;
+            }
 
             //存储源对象属性
             Dictionary<string, PropertyInfo> propertiesDic = new Dictionary<string, PropertyInfo>();
-            foreach (System.Reflection.PropertyInfo item in properties)
+            foreach (PropertyInfo item in properties)
             {
+                if (item == null)
+                {
+                    continue;
+                }
                 var hasSameKey = properties.Count(f => f.Name == item.Name) > 1;
-                var isHideBySig = item.GetGetMethod().IsHideBySig;
+                MethodInfo? methodInfo = item.GetGetMethod();
+                if (methodInfo == null)
+                {
+                    continue;
+                }
+                var isHideBySig = methodInfo.IsHideBySig;
 
                 //避免因为子类添加new修饰符符导致出现重名字段
-                if (hasSameKey && isHideBySig && item.DeclaringType != obj.GetType())
+                if (hasSameKey && isHideBySig && item.DeclaringType != typeof(TIn))
                 {
                     continue;
                 }
                 propertiesDic.Add(item.Name, item);
             }
 
-            System.Reflection.PropertyInfo[] resultProperties = result.GetType().GetProperties();
+            PropertyInfo[] resultProperties = typeof(TOut).GetProperties();
 
-            foreach (System.Reflection.PropertyInfo j in resultProperties)
+            foreach (PropertyInfo j in resultProperties)
             {
                 try
                 {
-                    ////自定义属性处理别名
-                    DescriptionAttribute desc = (DescriptionAttribute)j.GetCustomAttributes(false).FirstOrDefault(f => f.GetType() == typeof(DescriptionAttribute));
+                    //自定义属性处理别名
+                    var descAttr = j.GetCustomAttributes(false).FirstOrDefault(f => f.GetType() == typeof(DescriptionAttribute));
+                    if (descAttr == null)
+                    {
+                        continue;
+                    }
+                    if (descAttr is not DescriptionAttribute desc)
+                    {
+                        continue;
+                    }
                     if (desc != null && !ignorDesc)
                     {
                         string desName = desc.Description;
@@ -92,45 +113,60 @@ namespace Common.Toolkit.Helper
             return result;
         }
 
-        public static IList<TOut> AutoMap<TIn, TOut>(this List<TIn> list, bool ignorDesc = true) where TOut : new()
+        public static IList<TOut?> AutoMap<TIn, TOut>(this List<TIn> list, bool ignorDesc = true) where TOut : new()
         {
-            List<TOut> result = new List<TOut>();
+            var result = new List<TOut?>();
             foreach (TIn item in list)
             {
                 try
                 {
-                    result.Add(AutoMap<TIn, TOut>(item, ignorDesc));
+                    var itemResult = AutoMap<TIn, TOut>(item, ignorDesc);
+                    result.Add(itemResult);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    throw e;
+                    throw;
                 }
             }
             return result;
         }
 
-
-        public static object AutoMapByType(object obj, Type outType, bool ignorDesc = false)
+        /// <summary>
+        /// 将对象转为目标类型
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="outType"></param>
+        /// <param name="ignorDesc"></param>
+        /// <returns></returns>
+        public static object? AutoMapByType(object obj, Type outType, bool ignorDesc = false)
         {
-            object result = Activator.CreateInstance(outType);
+            var result = Activator.CreateInstance(outType);
 
-            System.Reflection.PropertyInfo[] properties = obj.GetType().GetProperties();
+            PropertyInfo[] properties = obj.GetType().GetProperties();
 
             //存储源对象属性
             Dictionary<string, PropertyInfo> propertiesDic = new Dictionary<string, PropertyInfo>();
-            foreach (System.Reflection.PropertyInfo item in properties)
+            foreach (PropertyInfo item in properties)
             {
                 propertiesDic.Add(item.Name, item);
             }
 
-            System.Reflection.PropertyInfo[] resultProperties = outType.GetProperties();
+            PropertyInfo[] resultProperties = outType.GetProperties();
 
-            foreach (System.Reflection.PropertyInfo j in resultProperties)
+            foreach (PropertyInfo j in resultProperties)
             {
                 try
                 {
-                    ////自定义属性处理别名
-                    DescriptionAttribute desc = (DescriptionAttribute)j.GetCustomAttributes(false).FirstOrDefault(f => f.GetType() == typeof(DescriptionAttribute));
+                    var attrList = j.GetCustomAttributes(false).FirstOrDefault(f => f.GetType() == typeof(DescriptionAttribute));
+                    if (attrList == null)
+                    {
+                        continue;
+                    }
+                    //自定义属性处理别名
+                    if (attrList is not DescriptionAttribute desc)
+                    {
+                        continue;
+                    }
                     if (desc != null && !ignorDesc)
                     {
                         string desName = desc.Description;

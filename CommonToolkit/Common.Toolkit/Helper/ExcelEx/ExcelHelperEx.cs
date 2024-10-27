@@ -13,7 +13,7 @@ namespace Common.Toolkit.Helper.ExcelEx
         public void GetImportTemplate<T>(string fileName)
         {
             var titleDic = ParseTitleDic();
-            ExceptionHelper.CheckException(titleDic == null || titleDic.Count == 0, "TemplateWithoutProperty");
+            ExceptionHelper.Check(titleDic == null || titleDic.Count == 0, "TemplateWithoutProperty");
 
             var excelHelper = new ExcelHelper(fileName, true);
 
@@ -34,7 +34,7 @@ namespace Common.Toolkit.Helper.ExcelEx
         private static Dictionary<int, ExcelParseModel> ParseTitleDic()
         {
             var typeInfo = typeof(T).GetProperties();
-            ExceptionHelper.CheckException(typeInfo.IsNullOrEmpty(), "TemplateWithoutProperty");
+            ExceptionHelper.Check(typeInfo.IsNullOrEmpty(), "TemplateWithoutProperty");
 
             var titleDic = new Dictionary<int, ExcelParseModel>();
             int index = 0;
@@ -94,7 +94,7 @@ namespace Common.Toolkit.Helper.ExcelEx
             }
             var result = new List<T>();
             var titleDic = ParseTitleDic();
-            ExceptionHelper.CheckException(titleDic == null || titleDic.Count == 0, "TemplateWithoutProperty");
+            ExceptionHelper.Check(titleDic == null || titleDic.Count == 0, "TemplateWithoutProperty");
 
 
             var excelHelper = new ExcelHelper(fileName);

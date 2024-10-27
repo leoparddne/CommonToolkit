@@ -5,10 +5,10 @@ namespace Common.Toolkit.Helper
 
     public static class ExpressionHelper
     {
-        #region 与或非封装
         public static Expression<Func<T, bool>> True<T>() { return param => true; }
         public static Expression<Func<T, bool>> False<T>() { return param => false; }
 
+        #region 与或非封装
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> one, Expression<Func<T, bool>> another)
         {
             //return one.Compose(another, Expression.AndAlso);
@@ -88,7 +88,7 @@ namespace Common.Toolkit.Helper
                     break;
             }
 
-            return "";
+            return string.Empty;
         }
 
         public static string GetPropertyNameByLambda<TIn>(TIn data, Expression<Func<TIn, object>> exp)
@@ -96,7 +96,7 @@ namespace Common.Toolkit.Helper
             return GetPropertyName(exp);
         }
 
-        public static Type GetFieldTypeByName<TIn>(string fieldName)
+        public static Type? GetFieldTypeByName<TIn>(string fieldName)
         {
             var propertyInfo = typeof(TIn).GetProperties().FirstOrDefault(f => f.Name == fieldName);
 
@@ -114,8 +114,13 @@ namespace Common.Toolkit.Helper
             return null;
         }
 
-        public static object GetDataByName<TIn>(TIn data, string fieldName)//, Expression<Func<TIn, object>> exp)
+        public static object? GetDataByName<TIn>(TIn data, string fieldName)//, Expression<Func<TIn, object>> exp)
         {
+            if (data == null)
+            {
+                return null;
+            }
+
             var type = data.GetType();
 
             var propertyInfo = type.GetProperties().FirstOrDefault(f => f.Name == fieldName);
@@ -136,9 +141,13 @@ namespace Common.Toolkit.Helper
             return null;
         }
 
-        public static TOut GetDataByName<TIn, TOut>(TIn data, string fieldName)
+        public static TOut? GetDataByName<TIn, TOut>(TIn data, string fieldName)
         {
             var result = GetDataByName<TIn>(data, fieldName);
+            if (result == null)
+            {
+                return default;
+            }
             if (result.GetType() == typeof(TOut))
             {
                 return (TOut)result;

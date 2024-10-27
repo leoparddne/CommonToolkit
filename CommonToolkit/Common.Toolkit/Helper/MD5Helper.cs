@@ -3,9 +3,8 @@ using System.Text;
 
 namespace Common.Toolkit.Helper
 {
-    public class SecureHelper
+    public class MD5Helper
     {
-        #region MD5
         /// <summary>
         /// 16位MD5加密
         /// </summary>
@@ -54,6 +53,5 @@ namespace Common.Toolkit.Helper
 
             return Convert.ToBase64String(encryptionArray);
         }
-        #endregion
     }
 }

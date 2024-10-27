@@ -24,7 +24,7 @@ namespace Common.Toolkit.Helper.ExcelEx
         /// <exception cref="NotSupportedException"></exception>
         public ExcelHelper(string filePath, bool isWrite = false)
         {
-            ExceptionHelper.CheckException(!isWrite && !File.Exists(filePath), "FileNotExist");
+            ExceptionHelper.Check(!isWrite && !File.Exists(filePath), "FileNotExist");
             this.filePath = filePath;
             string extension = System.IO.Path.GetExtension(filePath);
 

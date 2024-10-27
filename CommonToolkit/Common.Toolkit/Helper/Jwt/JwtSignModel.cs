@@ -1,4 +1,4 @@
-﻿namespace Common.Toolkit.Model.JWT
+﻿namespace Common.Toolkit.Helper.Jwt
 {
     public class JwtSignModel
     {

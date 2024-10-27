@@ -1,15 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Common.Toolkit.Helper
 {
     public class AppSettingsHelper
     {
-        private static readonly object _lock = new object();
         private static IConfiguration configuration;
-        private static List<string> files { get; set; } = new List<string>();
+        private static List<string> Files { get; set; } = new List<string>();
 
 
         static AppSettingsHelper()
@@ -21,7 +17,7 @@ namespace Common.Toolkit.Helper
 
             var builder = new ConfigurationBuilder();
 
-            foreach (var item in files)
+            foreach (var item in Files)
             {
                 builder.AddJsonFile(item, optional: true, reloadOnChange: true);
             }
@@ -41,26 +37,30 @@ namespace Common.Toolkit.Helper
                 return;
             }
 
-            files.Add(fileName);
+            Files.Add(fileName);
 
             Console.WriteLine($"add file {fileName}");
         }
 
         public static string GetSetting(params string[] sections)
         {
+            if (configuration == null)
+            {
+                return string.Empty;
+            }
             if (sections != null && sections.Length > 0)
             {
                 if (sections.Length == 1)
                 {
-                    return configuration?.GetSection(sections[0]).Value;
+                    return configuration.GetSection(sections[0]).Value;
                 }
                 else
                 {
-                    return configuration?[string.Join(":", sections)];
+                    return configuration[string.Join(":", sections)];
                 }
             }
 
-            return "";
+            return string.Empty;
         }
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace Common.Toolkit.Helper
         /// <typeparam name="T"></typeparam>
         /// <param name="section"></param>
         /// <returns></returns>
-        public static T GetObject<T>(string section) where T : class, new()
+        public static T? GetObject<T>(string section) where T : class, new()
         {
-            T result = new T();
+            T result = new();
             IConfigurationSection configSection = configuration.GetSection(section);
             if (configSection == null)
             {

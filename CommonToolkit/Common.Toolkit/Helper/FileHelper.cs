@@ -5,19 +5,6 @@ namespace Common.Toolkit.Helper
 {
     public class FileHelper
     {
-        #region FileExist
-        /// <summary>
-        /// 文件是否存在
-        /// </summary>
-        /// <param name="filePath">文件路径</param>
-        /// <returns></returns>
-        public static bool FileExist(string filePath)
-        {
-            return File.Exists(filePath);
-        }
-        #endregion
-
-        #region GetMD5
         /// <summary>
         /// 获取文件MD5
         /// </summary>
@@ -36,43 +23,19 @@ namespace Common.Toolkit.Helper
             fs1.Dispose();
             return md5String;
         }
-        #endregion
 
-        #region DirectoryExists
-        /// <summary>
-        /// 目录是否存在
-        /// </summary>
-        /// <param name="directoryPath">目录路径</param>
-        /// <returns></returns>
-        public static bool DirectoryExists(string directoryPath)
-        {
-            return Directory.Exists(directoryPath);
-        }
-        #endregion
 
-        #region CreateDirectory
-        /// <summary>
-        /// 创建目录
-        /// </summary>
-        /// <param name="directoryPath">目录路径</param>
-        public static void CreateDirectory(string directoryPath)
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-        #endregion
-
-        #region CreateIfNotExists
         /// <summary>
         /// 如果目录不存在则创建目录
         /// </summary>
         /// <param name="directoryPath"></param>
         public static void CreateIfNotExists(string directoryPath)
         {
-            if (!Directory.Exists(directoryPath))
+            if (Directory.Exists(directoryPath))
             {
-                Directory.CreateDirectory(directoryPath);
+                return;
             }
+            Directory.CreateDirectory(directoryPath);
         }
-        #endregion
     }
 }

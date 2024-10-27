@@ -1,12 +1,11 @@
-﻿using Common.Toolkit.Model.JWT;
-using Microsoft.IdentityModel.Logging;
+﻿using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Common.Toolkit.Helper
+namespace Common.Toolkit.Helper.Jwt
 {
     public static class JwtHelper
     {

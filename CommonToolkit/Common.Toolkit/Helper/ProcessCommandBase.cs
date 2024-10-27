@@ -8,22 +8,32 @@ namespace Common.Toolkit.Helper
         //程序名
         public string programe;
         //参数
-        StringBuilder parameter = new StringBuilder();
-        Process process = null;
+        StringBuilder parameter = new();
+        Process? process = null;
 
         public ProcessCommandBase(string programe)
         {
+            if (string.IsNullOrEmpty(programe))
+            {
+                throw new ArgumentException($"“{nameof(programe)}”不能为 null 或空。", nameof(programe));
+            }
+
             this.programe = programe;
         }
 
         public ProcessCommandBase AddParameter(string para)
         {
+            if (para is null)
+            {
+                return this;
+            }
+
             parameter.Append($" {para} ");
 
             return this;
         }
 
-        public void Exec(bool waitForExit = false, string workDirectory = null)
+        public void Exec(bool waitForExit = false, string? workDirectory = null)
         {
             //var baseDir = AppDomain.CurrentDomain.BaseDirectory;
             process = new Process();
@@ -54,12 +64,12 @@ namespace Common.Toolkit.Helper
             }
         }
 
-        public void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        public void Process_OutputDataReceived(object sender, DataReceivedEventArgs? e)
         {
 
         }
 
-        public void Process_Exited(object sender, EventArgs e)
+        public void Process_Exited(object? sender, EventArgs e)
         {
 
         }
