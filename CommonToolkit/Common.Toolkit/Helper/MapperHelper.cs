@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace Common.Toolkit.Helper
@@ -73,15 +73,7 @@ namespace Common.Toolkit.Helper
                 {
                     //自定义属性处理别名
                     var descAttr = j.GetCustomAttributes(false).FirstOrDefault(f => f.GetType() == typeof(DescriptionAttribute));
-                    if (descAttr == null)
-                    {
-                        continue;
-                    }
-                    if (descAttr is not DescriptionAttribute desc)
-                    {
-                        continue;
-                    }
-                    if (desc != null && !ignorDesc)
+                    if (descAttr != null && descAttr is  DescriptionAttribute desc && !ignorDesc)
                     {
                         string desName = desc.Description;
                         if (propertiesDic.ContainsKey(desName))
@@ -113,14 +105,15 @@ namespace Common.Toolkit.Helper
             return result;
         }
 
-        public static IList<TOut?> AutoMap<TIn, TOut>(this List<TIn> list, bool ignorDesc = true) where TOut : new()
+        public static IList<TOut> AutoMap<TIn, TOut>(this List<TIn> list, bool ignorDesc = true) where TOut : new()
         {
-            var result = new List<TOut?>();
+            var result = new List<TOut>();
             foreach (TIn item in list)
             {
                 try
                 {
                     var itemResult = AutoMap<TIn, TOut>(item, ignorDesc);
+                    ExceptionHelper.CheckNull(itemResult, "AutoMap转换失败");
                     result.Add(itemResult);
                 }
                 catch (Exception)
@@ -158,16 +151,7 @@ namespace Common.Toolkit.Helper
                 try
                 {
                     var attrList = j.GetCustomAttributes(false).FirstOrDefault(f => f.GetType() == typeof(DescriptionAttribute));
-                    if (attrList == null)
-                    {
-                        continue;
-                    }
-                    //自定义属性处理别名
-                    if (attrList is not DescriptionAttribute desc)
-                    {
-                        continue;
-                    }
-                    if (desc != null && !ignorDesc)
+                    if (attrList != null && attrList is  DescriptionAttribute desc && !ignorDesc)
                     {
                         string desName = desc.Description;
                         if (propertiesDic.ContainsKey(desName))
