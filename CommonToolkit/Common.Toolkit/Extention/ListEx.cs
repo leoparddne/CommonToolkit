@@ -15,6 +15,13 @@ namespace Common.Toolkit.Extention
             return false;
         }
 
+        
+        public static bool NotNullOrEmpty(this IList list)
+        {
+            var result=!list.IsNullOrEmpty();
+            return result;
+        }
+
         public static List<string> DistinctString(this List<string> list)
         {
             if (list.IsNullOrEmpty())
