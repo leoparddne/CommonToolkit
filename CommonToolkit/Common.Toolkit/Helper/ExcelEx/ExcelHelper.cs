@@ -550,6 +550,8 @@ namespace Common.Toolkit.Helper.ExcelEx
         public void Dispose()
         {
             obook.Close();
+            obook = null;
+            osheet = null;
             GC.Collect();
         }
     }
